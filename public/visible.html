@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satellite Tracker - Visible Satellites</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/visible">Visible Satellites</a>
+            <a href="/info">Info</a>
+        </nav>
+    </header>
+    <section>
+        <h1>Visible Satellites</h1>
+        <form id="location-form">
+            <label for="latitude">Latitude:</label>
+            <input type="number" id="latitude" step="any" required><br>
+            <label for="longitude">Longitude:</label>
+            <input type="number" id="longitude" step="any" required>
+            <button type="submit">Find Satellites</button>
+        </form>
+        <div id="visible-sats"> </div>
+    </section>
+    <script src="/api.js"></script>
+    <script src="/script.js"></script>  
+    <script src="/script.js"></script>
+</body>
+</html>
