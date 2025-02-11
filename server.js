@@ -23,7 +23,7 @@ app.get("/visible-satellites", async (req, res) => {
     try {
         const response = await axios.get(`${BASE_URL}above/${lat}/${lon}/0/90/46?apiKey=${API_KEY}`);
         // console.log("Backend response:", response.data);
-        res.json(response.data); // Make sure you are returning `response.data.above`, as this is likely where the satellites are.
+        res.json(response.data); 
     } catch (error) {
         console.error("Error fetching visible satellites:", error);
         res.status(500).json({ error: "Failed to fetch visible satellites." });
@@ -43,7 +43,6 @@ app.get("/satellite/:id", async (req, res) => {
     }
 });
 
-// Start server
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
