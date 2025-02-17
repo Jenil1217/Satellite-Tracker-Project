@@ -19,16 +19,17 @@ app.get("/info", (req, res) => res.sendFile(path.join(__dirname, "public", "info
 // API Route: Get visible satellites for given location
 app.get("/visible-satellites", async (req, res) => {
     const { lat, lon } = req.query;
+    // Input validation
+    if (!lat || !lon) {
+        return res.status(400).json({ error: "Latitude and longitude are required" });
+    }
+
     try {
         const response = await axios.get(`${BASE_URL}above/${lat}/${lon}/0/90/46?apiKey=${API_KEY}`);
-
-        // console.log("Backend response:", response.data);
-        res.json(response.data); 
-
-        res.json(response.data);
+        return res.json(response.data);
     } catch (error) {
         console.error("Error fetching visible satellites:", error);
-        res.status(500).json({ error: "Failed to fetch visible satellites." });
+        return res.status(500).json({ error: "Failed to fetch visible satellites." });
     }
 });
 
