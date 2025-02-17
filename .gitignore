@@ -1,0 +1,15 @@
+# Node modules
+node_modules/
+
+# MongoDB data or mongo_modules
+mongo_modules/
+
+# Log files
+*.log
+
+# Environment variables (do not push sensitive data)
+.env
+
+# IDE files (if using VSCode, IntelliJ, etc.)
+.vscode/
+.idea/
