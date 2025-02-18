@@ -6,7 +6,7 @@ const app = express();
 const PORT = 3000;
 
 // Your N2YO API key
-const API_KEY = "xxxxx"; 
+const API_KEY = "QKP97Z-GCWJJ4-8M4LMK-5ESB"; 
 const BASE_URL = "https://api.n2yo.com/rest/v1/satellite/";
 
 app.use(express.static(path.join(__dirname, "public")));
