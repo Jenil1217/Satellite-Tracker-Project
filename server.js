@@ -6,7 +6,7 @@ const app = express();
 const PORT = 3000;
 
 // Your N2YO API key
-const API_KEY = "QKP97Z-GCWJJ4-8M4LMK-5ESB"; 
+const API_KEY = "xxxxx"; 
 const BASE_URL = "https://api.n2yo.com/rest/v1/satellite/";
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -26,7 +26,7 @@ app.get("/visible-satellites", async (req, res) => {
 
     try {
         const response = await axios.get(`${BASE_URL}above/${lat}/${lon}/0/90/46?apiKey=${API_KEY}`);
-        return res.json(response.data);
+        res.json(response.data);
     } catch (error) {
         console.error("Error fetching visible satellites:", error);
         return res.status(500).json({ error: "Failed to fetch visible satellites." });

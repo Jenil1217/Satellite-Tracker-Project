@@ -114,7 +114,7 @@ const trackSatellite = async (satId, userLocation) => {
             <p><strong>Latitude:</strong> ${posData.positions[0].satlatitude}°</p>
             <p><strong>Longitude:</strong> ${posData.positions[0].satlongitude}°</p>
             <p><strong>Altitude:</strong> ${posData.positions[0].sataltitude} km</p>
-            <p><strong>Speed:</strong> ${speed.toFixed(2)} km/s <p>
+            <p><strong>Speed:</strong> ${speed.toFixed(6)} km/s <p>
             <p><strong>Azimuth:</strong> ${posData.positions[0].azimuth}°</p>
             <p><strong>Elevation:</strong> ${posData.positions[0].elevation}°</p>
             
