@@ -1,25 +1,50 @@
-import { useState } from 'react';
-import api from '../api';
+import { useState, useEffect } from 'react';
+import Select from 'react-select';
+import api from '../api/api';
 import "../App.css";
 
-const demoSatellites = [
-  { id: 25544, name: 'ISS' },
-  { id: 48274, name: 'Starlink 1000' },
-];
-
 const Home = () => {
-  const [selectedId, setSelectedId] = useState(demoSatellites[0].id);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [satelliteOptions, setSatelliteOptions] = useState([]);
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
 
+  // Fetch satellite list from backend
+  useEffect(() => {
+    const fetchSatellites = async () => {
+      try {
+        const sats = await api.getAllSatellites();
+        if (Array.isArray(sats)) {
+          const options = sats.map(sat => ({
+            value: sat.NORAD_CAT_ID,
+            label: sat.OBJECT_NAME
+          }));
+          setSatelliteOptions(options);
+        } else {
+          console.error("Invalid satellites data format", sats);
+        }
+      } catch (err) {
+        console.error('📡 Satellite fetch error:', err);
+        setError('Failed to load satellite list');
+      }
+    };
+
+    fetchSatellites();
+  }, []);
+
   const handleTrack = async () => {
+    if (!selectedOption) {
+      setError('Please select a satellite to track');
+      return;
+    }
+
     try {
-      const { coords } = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      });
+      const { coords } = await new Promise((resolve, reject) =>
+        navigator.geolocation.getCurrentPosition(resolve, reject)
+      );
 
       const res = await api.getSatellitePosition(
-        selectedId,
+        selectedOption.value,
         coords.latitude,
         coords.longitude
       );
@@ -27,31 +52,37 @@ const Home = () => {
       setData(res);
       setError('');
     } catch (err) {
-      console.error(err);
+      console.error('🛰️ Position fetch error:', err);
       setError('Error fetching satellite data');
     }
   };
 
   return (
-    <div className='container'>
+    <div className="container">
       <h1>Satellite Tracker - Home</h1>
-      <select className="dropdown" value={selectedId} onChange={(e) => setSelectedId(e.target.value)}>
-        {demoSatellites.map((sat) => (
-          <option key={sat.id} value={sat.id}>
-            {sat.name}
-          </option>
-        ))}
-      </select>
-      <button className = 'btn primary'onClick={handleTrack}>Track</button>
 
-      {error && <p className="error"  style={{ color: 'red' }}>{error}</p>}
+      {/* Dropdown only (no search for now) */}
+      <Select
+        options={satelliteOptions}
+        value={selectedOption}
+        onChange={setSelectedOption}
+        placeholder="Select a satellite"
+        className="dropdown"
+        isSearchable={false}
+      />
+
+      <button className="btn primary" onClick={handleTrack}>
+        Track
+      </button>
+
+      {error && <p className="error" style={{ color: 'red' }}>{error}</p>}
 
       {data && (
         <div className="card">
           <h2>{data.info.satname}</h2>
-          <p>Latitude: {data.positions[0].satlatitude}</p>
-          <p>Longitude: {data.positions[0].satlongitude}</p>
-          <p>Altitude: {data.positions[0].sataltitude} km</p>
+          <p><strong>Latitude:</strong> {data.positions[0].satlatitude}</p>
+          <p><strong>Longitude:</strong> {data.positions[0].satlongitude}</p>
+          <p><strong>Altitude:</strong> {data.positions[0].sataltitude} km</p>
         </div>
       )}
     </div>

@@ -1,7 +1,67 @@
 import { useState } from 'react';
-import api from '../api';// Add this line for CSS import
+import api from '../api/api';// Add this line for CSS import
 import "../App.css";
+import { all } from 'axios';
 
+const categories = [
+  { id: 0, name: 'All Categories' },
+  { id: 18, name: 'Amateur radio' },
+  { id: 35, name: 'Beidou Navigation System' },
+  { id: 1, name: 'Brightest' },
+  { id: 45, name: 'Celestis' },
+  { id: 54, name: 'Chinese Space Station' },
+  { id: 32, name: 'CubeSats' },
+  { id: 8, name: 'Disaster monitoring' },
+  { id: 6, name: 'Earth resources' },
+  { id: 29, name: 'Education' },
+  { id: 28, name: 'Engineering' },
+  { id: 19, name: 'Experimental' },
+  { id: 48, name: 'Flock' },
+  { id: 22, name: 'Galileo' },
+  { id: 27, name: 'Geodetic' },
+  { id: 10, name: 'Geostationary' },
+  { id: 50, name: 'GPS Constellation' },
+  { id: 20, name: 'GPS Operational' },
+  { id: 17, name: 'Globalstar' },
+  { id: 51, name: 'Glonass Constellation' },
+  { id: 21, name: 'Glonass Operational' },
+  { id: 5, name: 'GOES' },
+  { id: 40, name: 'Gonets' },
+  { id: 12, name: 'Gorizont' },
+  { id: 11, name: 'Intelsat' },
+  { id: 15, name: 'Iridium' },
+  { id: 46, name: 'IRNSS' },
+  { id: 2, name: 'ISS' },
+  { id: 56, name: 'Kuiper' },
+  { id: 49, name: 'Lemur' },
+  { id: 30, name: 'Military' },
+  { id: 14, name: 'Molniya' },
+  { id: 24, name: 'Navy Navigation Satellite System' },
+  { id: 4, name: 'NOAA' },
+  { id: 43, name: 'O3B Networks' },
+  { id: 53, name: 'OneWeb' },
+  { id: 16, name: 'Orbcomm' },
+  { id: 38, name: 'Parus' },
+  { id: 55, name: 'Qianfan' },
+  { id: 47, name: 'QZSS' },
+  { id: 31, name: 'Radar Calibration' },
+  { id: 13, name: 'Raduga' },
+  { id: 25, name: 'Russian LEO Navigation' },
+  { id: 23, name: 'Satellite-Based Augmentation System' },
+  { id: 7, name: 'Search & rescue' },
+  { id: 26, name: 'Space & Earth Science' },
+  { id: 52, name: 'Starlink' },
+  { id: 39, name: 'Strela' },
+  { id: 9, name: 'Tracking and Data Relay Satellite System' },
+  { id: 44, name: 'Tselina' },
+  { id: 42, name: 'Tsikada' },
+  { id: 41, name: 'Tsiklon' },
+  { id: 34, name: 'TV' },
+  { id: 3, name: 'Weather' },
+  { id: 37, name: 'Westford Needles' },
+  { id: 33, name: 'XM and Sirius' },
+  { id: 36, name: 'Yaogan' },
+];
 
 const Visible = () => {
   const [lat, setLat] = useState('');
@@ -9,6 +69,7 @@ const Visible = () => {
   const [satellites, setSatellites] = useState([]);
   const [modalData, setModalData] = useState(null);
   const [error, setError] = useState('');
+  const [cat, setSelectedCategory] = useState(1); 
 
   const handleLocationFetch = async () => {
     try {
@@ -30,11 +91,11 @@ const Visible = () => {
     }
 
     try {
-      const data = await api.getVisibleSatellites(lat, lon);
+      const data = await api.getVisibleSatellites(lat, lon, cat);
       setSatellites(data.above || []);
       setError('');
     } catch (err) {
-      console.error(err);
+      console.error(err); 
       setError('Error fetching satellites');
     }
   };
@@ -77,7 +138,22 @@ const Visible = () => {
             onChange={(e) => setLon(e.target.value)}
             required
           />
-        </div> 
+        </div>
+        <div className="form-group">
+          <label htmlFor="category">Category:</label>
+          <select
+            id="category"
+            value={cat}
+            onChange={(e) => setSelectedCategory(Number(e.target.value))}
+          >
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
 
         <div className="button-group">
           <button type="submit" className="btn primary">Find Satellites</button>
