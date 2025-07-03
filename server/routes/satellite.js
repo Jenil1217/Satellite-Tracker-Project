@@ -47,13 +47,36 @@ router.get('/positions/:id/:lat/:lon/:alt/:seconds', async (req, res) => {
 });
 
 // 3️⃣ Route: Get all satellites for dropdown
+
+// Remove or comment this temporarily
+// const Satellite = require('../models/Satellite');
+
+// router.get('/satellites', async (req, res) => {
+//   try {
+//     // 👇 DUMMY DATA
+//     const dummySatellites = [
+//       { OBJECT_NAME: 'TestSat1', NORAD_CAT_ID: 12345 },
+//       { OBJECT_NAME: 'TestSat2', NORAD_CAT_ID: 67890 }
+//     ];
+
+//     console.log("📡 Sending dummy satellites:", dummySatellites);
+//     res.json(dummySatellites); // ✅ Send dummy array
+//   } catch (err) {
+//     console.error("❌ Satellite fetch error:", err);
+//     res.status(500).json({ error: 'Failed to fetch satellites' });
+//   }
+// });
+
+// module.exports = router;
+// 3️⃣ Route: Get all satellites for dropdown
+
 router.get('/satellites', async (req, res) => {
   try {
     const sats = await Satellite.find({}, 'OBJECT_NAME NORAD_CAT_ID -_id');
-    res.json(sats);
+    res.json(sats); // This should be an array
   } catch (err) {
-    console.error('Error loading satellites:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('❌ Satellite fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch satellites from DB' });
   }
 });
 

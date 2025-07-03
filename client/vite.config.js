@@ -7,6 +7,7 @@ export default defineConfig({
     proxy: {
       '/visible-satellites': 'http://localhost:3000',
       '/positions': 'http://localhost:3000',
+      '/satellites': 'http://localhost:3000',
     },
   },
 });

@@ -208,3 +208,61 @@ select {
   border: 1px solid #ccc;
   cursor: pointer;
 }
+
+/* Custom styles for react-select */
+.dropdown {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Container wrapper */
+.dropdown > div {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 2px 6px;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+/* Hover and focus state */
+.dropdown > div:hover {
+  border-color: #888;
+}
+.dropdown > div:focus-within {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+/* Control input text */
+.dropdown .css-1uccc91-singleValue {
+  color: #333;
+}
+
+/* Placeholder text */
+.dropdown .css-1jqq78o-placeholder {
+  color: #888;
+}
+
+/* Dropdown menu styling */
+.dropdown .css-26l3qy-menu {
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+/* Option item */
+.dropdown .css-10wo9uf-option {
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.dropdown .css-10wo9uf-option:hover {
+  background-color: #f0f0f0;
+}
+
+/* Selected option in list */
+.dropdown .css-10wo9uf-option--is-selected {
+  background-color: #007bff;
+  color: white;
+}

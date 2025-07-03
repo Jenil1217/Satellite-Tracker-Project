@@ -6,25 +6,26 @@ import "../App.css";
 const Home = () => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [satelliteOptions, setSatelliteOptions] = useState([]);
+  const [filteredOptions, setFilteredOptions] = useState([]);
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
 
-  // Fetch satellite list from backend
   useEffect(() => {
     const fetchSatellites = async () => {
       try {
         const sats = await api.getAllSatellites();
-        if (Array.isArray(sats)) {
-          const options = sats.map(sat => ({
-            value: sat.NORAD_CAT_ID,
-            label: sat.OBJECT_NAME
-          }));
-          setSatelliteOptions(options);
-        } else {
-          console.error("Invalid satellites data format", sats);
-        }
+        if (!Array.isArray(sats)) throw new Error('Expected array');
+
+        const options = sats.map(sat => ({
+          value: sat.NORAD_CAT_ID,
+          label: sat.OBJECT_NAME
+        }));
+
+        setSatelliteOptions(options);
+        setFilteredOptions(options.slice(0, 20)); // initially show top 20
+        setError('');
       } catch (err) {
-        console.error('📡 Satellite fetch error:', err);
+        console.error('📡 Satellite fetch error:', err.message);
         setError('Failed to load satellite list');
       }
     };
@@ -57,18 +58,34 @@ const Home = () => {
     }
   };
 
+  const handleInputChange = (input) => {
+    if (!input) {
+      setFilteredOptions(satelliteOptions.slice(0, 20));
+      return;
+    }
+
+    const matches = satelliteOptions
+      .filter(option => option.label.toLowerCase().includes(input.toLowerCase()))
+      .slice(0, 20);
+
+    setFilteredOptions(matches);
+  };
+
   return (
     <div className="container">
       <h1>Satellite Tracker - Home</h1>
 
-      {/* Dropdown only (no search for now) */}
       <Select
-        options={satelliteOptions}
+        options={filteredOptions}
         value={selectedOption}
         onChange={setSelectedOption}
-        placeholder="Select a satellite"
+        onInputChange={handleInputChange}
+        placeholder="Search satellites..."
         className="dropdown"
-        isSearchable={false}
+        isSearchable
+        noOptionsMessage={() =>
+          satelliteOptions.length === 0 ? 'Loading...' : 'No match found'
+        }
       />
 
       <button className="btn primary" onClick={handleTrack}>

@@ -1,23 +1,24 @@
 const mongoose = require('mongoose');
 
-const SatelliteSchema = new mongoose.Schema({
-  OBJECT_NAME: { type: String, required: true },
-  OBJECT_ID: { type: String, required: true },
-  NORAD_CAT_ID: { type: Number, required: true },
-  EPOCH: { type: String },
-  MEAN_MOTION: { type: Number },
-  ECCENTRICITY: { type: Number },
-  INCLINATION: { type: Number },
-  RA_OF_ASC_NODE: { type: Number },
-  ARG_OF_PERICENTER: { type: Number },
-  MEAN_ANOMALY: { type: Number },
-  EPHEMERIS_TYPE: { type: Number },
-  CLASSIFICATION_TYPE: { type: String },
-  ELEMENT_SET_NO: { type: Number },
-  REV_AT_EPOCH: { type: Number },
-  BSTAR: { type: Number },
-  MEAN_MOTION_DOT: { type: Number },
-  MEAN_MOTION_DDOT: { type: Number },
-}, { collection: 'satellites' }); // Match your MongoDB collection name
+const satelliteSchema = new mongoose.Schema({
+  OBJECT_NAME: String,
+  OBJECT_ID: String,
+  NORAD_CAT_ID: Number,
+  EPOCH: String,
+  MEAN_MOTION: Number,
+  ECCENTRICITY: Number,
+  INCLINATION: Number,
+  RA_OF_ASC_NODE: Number,
+  ARG_OF_PERICENTER: Number,
+  MEAN_ANOMALY: Number,
+  EPHEMERIS_TYPE: Number,
+  CLASSIFICATION_TYPE: String,
+  ELEMENT_SET_NO: Number,
+  REV_AT_EPOCH: Number,
+  BSTAR: Number,
+  MEAN_MOTION_DOT: Number,
+  MEAN_MOTION_DDOT: Number
+});
 
-module.exports = mongoose.model('Satellite', SatelliteSchema);
+// 👇 This part forces Mongoose to use the correct collection name
+module.exports = mongoose.model('Satellite', satelliteSchema, 'satellites');

@@ -19,7 +19,12 @@ const api = {
       params: { lat, lon, cat },
     });
     return res.data;
-  }
+  },
+  
+  getAllSatellites: async () => {
+  const res = await axios.get(`/satellites`);
+  return res.data;
+},
 };
 
 export default api;

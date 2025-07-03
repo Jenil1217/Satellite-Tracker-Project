@@ -19,7 +19,6 @@ mongoose.connect(MONGO_URI)
 
 // ✅ Mount routes
 app.use('/', satelliteRoutes);
-
 // ✅ Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
