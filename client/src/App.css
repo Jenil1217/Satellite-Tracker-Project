@@ -214,6 +214,7 @@ select {
   font-family: 'Segoe UI', sans-serif;
   font-size: 1rem;
   color: #333;
+  display: inline-block !important;
 }
 
 /* Container wrapper */

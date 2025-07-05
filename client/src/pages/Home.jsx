@@ -7,9 +7,12 @@ const Home = () => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [satelliteOptions, setSatelliteOptions] = useState([]);
   const [filteredOptions, setFilteredOptions] = useState([]);
+  const [manualNorad, setManualNorad] = useState('');
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
+  
 
+  // Fetch all satellite options on load
   useEffect(() => {
     const fetchSatellites = async () => {
       try {
@@ -22,7 +25,7 @@ const Home = () => {
         }));
 
         setSatelliteOptions(options);
-        setFilteredOptions(options.slice(0, 20)); // initially show top 20
+        setFilteredOptions(options.slice(0, 20));
         setError('');
       } catch (err) {
         console.error('📡 Satellite fetch error:', err.message);
@@ -33,9 +36,12 @@ const Home = () => {
     fetchSatellites();
   }, []);
 
+  // Triggered on pressing "Track"
   const handleTrack = async () => {
-    if (!selectedOption) {
-      setError('Please select a satellite to track');
+    const noradId = selectedOption?.value || manualNorad;
+
+    if (!noradId) {
+      setError('Please select a satellite or enter NORAD number');
       return;
     }
 
@@ -45,7 +51,7 @@ const Home = () => {
       );
 
       const res = await api.getSatellitePosition(
-        selectedOption.value,
+        noradId,
         coords.latitude,
         coords.longitude
       );
@@ -88,7 +94,15 @@ const Home = () => {
         }
       />
 
-      <button className="btn primary" onClick={handleTrack}>
+      <input
+        type="text"
+        value={manualNorad}
+        onChange={(e) => setManualNorad(e.target.value)}
+        placeholder="Or enter NORAD manually"
+        className='dropdown'
+      />
+
+      <button className="btn primary" onClick={handleTrack} style={{ marginTop: '10px' }}>
         Track
       </button>
 
