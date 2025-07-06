@@ -80,4 +80,15 @@ router.get('/satellites', async (req, res) => {
   }
 });
 
+// 4️⃣ Route: Get satellite TLE data// GET /tle/:norad
+router.get('/tle/:norad', async (req, res) => {
+  const { norad } = req.params;
+
+  try {
+    const response = await axios.get(`${BASE_URL}/tle/${norad}?apiKey=${API_KEY}`);
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch TLE data' });
+  }
+});
 module.exports = router;

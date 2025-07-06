@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import api from '../api/api';
 import "../App.css";
+import MapComponent from "../components/Map.jsx";
+import { calculateOrbit } from '../utils/orbit';
 
 const Home = () => {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -10,6 +12,18 @@ const Home = () => {
   const [manualNorad, setManualNorad] = useState('');
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
+  const [userCoords, setUserCoords] = useState(null);
+  
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setUserCoords({ lat: coords.latitude, lon: coords.longitude });
+      },
+      (err) => console.error("Failed to get user location", err)
+    );
+  }, []);
+
   
 
   // Fetch all satellite options on load
@@ -37,6 +51,7 @@ const Home = () => {
   }, []);
 
   // Triggered on pressing "Track"
+
   const handleTrack = async () => {
     const noradId = selectedOption?.value || manualNorad;
 
@@ -50,19 +65,18 @@ const Home = () => {
         navigator.geolocation.getCurrentPosition(resolve, reject)
       );
 
-      const res = await api.getSatellitePosition(
-        noradId,
-        coords.latitude,
-        coords.longitude
-      );
+      const res = await api.getSatellitePosition(noradId, coords.latitude, coords.longitude);
+      const tleData = await api.getTLE(noradId);
+      const orbitPath = calculateOrbit(tleData.tle);
 
-      setData(res);
+      setData({ ...res, orbit: orbitPath });
       setError('');
     } catch (err) {
       console.error('🛰️ Position fetch error:', err);
       setError('Error fetching satellite data');
     }
   };
+
 
   const handleInputChange = (input) => {
     if (!input) {
@@ -109,12 +123,24 @@ const Home = () => {
       {error && <p className="error" style={{ color: 'red' }}>{error}</p>}
 
       {data && (
-        <div className="card">
-          <h2>{data.info.satname}</h2>
-          <p><strong>Latitude:</strong> {data.positions[0].satlatitude}</p>
-          <p><strong>Longitude:</strong> {data.positions[0].satlongitude}</p>
-          <p><strong>Altitude:</strong> {data.positions[0].sataltitude} km</p>
-        </div>
+        <>
+          <div className="card">
+            <h2>{data.info.satname}</h2>
+            <p><strong>Latitude:</strong> {data.positions[0].satlatitude}</p>
+            <p><strong>Longitude:</strong> {data.positions[0].satlongitude}</p>
+            <p><strong>Altitude:</strong> {data.positions[0].sataltitude} km</p>
+          </div>
+          {data && <MapComponent
+            data={[{
+              satname: data.info.satname,
+              satlatitude: data.positions[0].satlatitude,
+              satlongitude: data.positions[0].satlongitude
+            }]}
+            user={userCoords}
+            orbit={data.orbit}
+          />
+          }
+        </>
       )}
     </div>
   );

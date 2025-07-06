@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
 import api from '../api/api';// Add this line for CSS import
 import "../App.css";
-import { all } from 'axios';
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import MapComponent from "../components/Map.jsx";
+import { calculateOrbit } from '../utils/orbit';
+import L from "leaflet";
 
 const categories = [
   { id: 0, name: 'All Categories' },
@@ -69,17 +73,26 @@ const Visible = () => {
   const [satellites, setSatellites] = useState([]);
   const [modalData, setModalData] = useState(null);
   const [error, setError] = useState('');
-  const [cat, setSelectedCategory] = useState(1); 
+  const [cat, setSelectedCategory] = useState(1);
+  const [userCoords, setUserCoords] = useState(null);
 
-  const handleLocationFetch = async () => {
-    try {
-      const { coords } = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      });
-      setLat(coords.latitude.toFixed(6));
-      setLon(coords.longitude.toFixed(6));
-    } catch {
-      setError('Location fetch failed. Please enable location access.');
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setUserCoords({ lat: coords.latitude, lon: coords.longitude });
+      },
+      (err) => {
+        console.error("Failed to get user location", err);
+      }
+    );
+  }, []);
+
+  const handleLocationFetch = () => {
+    if (userCoords) {
+      setLat(userCoords.lat.toFixed(6));
+      setLon(userCoords.lon.toFixed(6));
+    } else {
+      setError("Location not available yet.");
     }
   };
 
@@ -95,23 +108,31 @@ const Visible = () => {
       setSatellites(data.above || []);
       setError('');
     } catch (err) {
-      console.error(err); 
+      console.error(err);
       setError('Error fetching satellites');
     }
   };
 
+  
+
   const handlePopup = async (satId) => {
     try {
       const data = await api.getSatellitePosition(satId, lat, lon);
+      const tleData = await api.getTLE(satId);
+      const orbitPath = calculateOrbit(tleData.tle); // pass full string now
+
+
       setModalData({
         name: data.info.satname,
         id: data.info.satid,
         position: data.positions[0],
+        orbit: orbitPath
       });
     } catch (err) {
       setError('Failed to fetch satellite details');
     }
   };
+
 
   const closeModal = () => setModalData(null);
 
@@ -139,6 +160,7 @@ const Visible = () => {
             required
           />
         </div>
+
         <div className="form-group">
           <label htmlFor="category">Category:</label>
           <select
@@ -153,7 +175,6 @@ const Visible = () => {
             ))}
           </select>
         </div>
-
 
         <div className="button-group">
           <button type="submit" className="btn primary">Find Satellites</button>
@@ -188,14 +209,28 @@ const Visible = () => {
       {modalData && (
         <div className="modal" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>{modalData.name}</h2>
-            <p><strong>NORAD ID:</strong> {modalData.id}</p>
-            <p><strong>Latitude:</strong> {modalData.position.satlatitude}</p>
-            <p><strong>Longitude:</strong> {modalData.position.satlongitude}</p>
-            <p><strong>Altitude:</strong> {modalData.position.sataltitude} km</p>
-            <p><strong>Azimuth:</strong> {modalData.position.azimuth}°</p>
-            <p><strong>Elevation:</strong> {modalData.position.elevation}°</p>
-            <button className="btn small" onClick={closeModal}>Close</button>
+            <div className="sat-info">
+              <h2>{modalData.name}</h2>
+              <p><strong>NORAD ID:</strong> {modalData.id}</p>
+              <p><strong>Latitude:</strong> {modalData.position.satlatitude}</p>
+              <p><strong>Longitude:</strong> {modalData.position.satlongitude}</p>
+              <p><strong>Altitude:</strong> {modalData.position.sataltitude} km</p>
+              <p><strong>Azimuth:</strong> {modalData.position.azimuth}°</p>
+              <p><strong>Elevation:</strong> {modalData.position.elevation}°</p>
+              <button className="btn small" onClick={closeModal}>Close</button>
+            </div>
+
+            <div className="map-wrapper">
+              <MapComponent
+                data={[{
+                  satname: modalData.name,
+                  satlatitude: modalData.position.satlatitude,
+                  satlongitude: modalData.position.satlongitude
+                }]}
+                user={userCoords}
+                orbit={modalData.orbit}
+              />
+            </div>
           </div>
         </div>
       )}

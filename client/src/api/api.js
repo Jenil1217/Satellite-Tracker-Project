@@ -20,11 +20,11 @@ const api = {
     });
     return res.data;
   },
-  
-  getAllSatellites: async () => {
-  const res = await axios.get(`/satellites`);
-  return res.data;
-},
+
+  getTLE: async (norad) => {
+  const response = await axios.get(`/tle/${norad}`);
+  return response.data;
+}
 };
 
 export default api;
