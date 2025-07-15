@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import Select from 'react-select';
 import api from '../api/api';
 import "../App.css";
 import MapComponent from "../components/Map.jsx";
 import { calculateOrbit } from '../utils/orbit';
+import { AuthContext } from '../context/AuthContext';
+
 
 const Home = () => {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -13,7 +15,21 @@ const Home = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [userCoords, setUserCoords] = useState(null);
-  
+  const [favorites, setFavorites] = useState([]);
+
+  const { user } = useContext(AuthContext);
+    useEffect(() => {
+    const fetchFavs = async () => {
+      try {
+        const favs = await api.getFavorites();
+        setFavorites(favs);
+      } catch (err) {
+        console.log('No auth / favs yet');
+      }
+    };
+
+    fetchFavs();
+  }, []);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -129,6 +145,29 @@ const Home = () => {
             <p><strong>Latitude:</strong> {data.positions[0].satlatitude}</p>
             <p><strong>Longitude:</strong> {data.positions[0].satlongitude}</p>
             <p><strong>Altitude:</strong> {data.positions[0].sataltitude} km</p>
+            {user ? (
+              <button
+                onClick={async () => {
+                  try {
+                    const updated = await api.toggleFavorite(data.info.satid); // ✅ this works
+                    setFavorites(updated);
+                  } catch (err) {
+                    console.error('Favorite toggle failed', err);
+                  }
+                }}
+                className="btn small"
+              >
+                {Array.isArray(favorites) && favorites.includes(data.info.satid)
+                  ? '★ Unfollow'
+                  : '☆ Follow'}
+              </button>
+            ) : (
+              <p style={{ fontSize: '12px', color: '#999' }}>
+                Login to follow satellites
+              </p>
+            )}
+
+
           </div>
           {data && <MapComponent
             data={[{

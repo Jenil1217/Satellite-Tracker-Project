@@ -8,7 +8,8 @@ export default defineConfig({
       '/visible-satellites': 'http://localhost:3000',
       '/positions': 'http://localhost:3000',
       '/satellites': 'http://localhost:3000',
-      '/tle': 'http://localhost:3000'
+      '/tle': 'http://localhost:3000',
+      '/auth': 'http://localhost:3000',
     },
   },
 });

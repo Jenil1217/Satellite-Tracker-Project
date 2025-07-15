@@ -8,9 +8,13 @@ const satelliteRoutes = require('./routes/satellite'); // Make sure this file ex
 const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/satelliteDB';
-
 app.use(cors());
 app.use(express.json());
+
+const authRoutes = require('./routes/auth');
+app.use('/auth', authRoutes);
+
+
 
 // ✅ Connect to MongoDB
 mongoose.connect(MONGO_URI)

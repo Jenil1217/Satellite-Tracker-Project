@@ -1,11 +1,14 @@
-import { useState, useEffect} from 'react';
+import { useState, useEffect, useContext} from 'react';
 import api from '../api/api';// Add this line for CSS import
 import "../App.css";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import MapComponent from "../components/Map.jsx";
 import { calculateOrbit } from '../utils/orbit';
+import { AuthContext } from '../context/AuthContext';
+
 import L from "leaflet";
+import { data } from 'react-router-dom';
 
 const categories = [
   { id: 0, name: 'All Categories' },
@@ -71,10 +74,25 @@ const Visible = () => {
   const [lat, setLat] = useState('');
   const [lon, setLon] = useState('');
   const [satellites, setSatellites] = useState([]);
-  const [modalData, setModalData] = useState(null);
+  const [data, setdata] = useState(null);
   const [error, setError] = useState('');
   const [cat, setSelectedCategory] = useState(1);
   const [userCoords, setUserCoords] = useState(null);
+  const [favorites, setFavorites] = useState([]);
+  
+  const { user } = useContext(AuthContext);
+  useEffect(() => {
+      const fetchFavs = async () => {
+        try {
+          const favs = await api.getFavorites();
+          setFavorites(favs);
+        } catch (err) {
+          console.log('No auth / favs yet');
+        }
+      };
+
+      fetchFavs();
+    }, []);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -122,7 +140,7 @@ const Visible = () => {
       const orbitPath = calculateOrbit(tleData.tle); // pass full string now
 
 
-      setModalData({
+      setdata({
         name: data.info.satname,
         id: data.info.satid,
         position: data.positions[0],
@@ -134,7 +152,7 @@ const Visible = () => {
   };
 
 
-  const closeModal = () => setModalData(null);
+  const closeModal = () => setdata(null);
 
   return (
     <div className="visible-container">
@@ -206,29 +224,50 @@ const Visible = () => {
         )}
       </div>
 
-      {modalData && (
+      {data && (
         <div className="modal" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="sat-info">
-              <h2>{modalData.name}</h2>
-              <p><strong>NORAD ID:</strong> {modalData.id}</p>
-              <p><strong>Latitude:</strong> {modalData.position.satlatitude}</p>
-              <p><strong>Longitude:</strong> {modalData.position.satlongitude}</p>
-              <p><strong>Altitude:</strong> {modalData.position.sataltitude} km</p>
-              <p><strong>Azimuth:</strong> {modalData.position.azimuth}°</p>
-              <p><strong>Elevation:</strong> {modalData.position.elevation}°</p>
-              <button className="btn small" onClick={closeModal}>Close</button>
+              <h2>{data.name}</h2>
+              <p><strong>NORAD ID:</strong> {data.id}</p>
+              <p><strong>Latitude:</strong> {data.position.satlatitude}</p>
+              <p><strong>Longitude:</strong> {data.position.satlongitude}</p>
+              <p><strong>Altitude:</strong> {data.position.sataltitude} km</p>
+              <p><strong>Azimuth:</strong> {data.position.azimuth}°</p>
+              <p><strong>Elevation:</strong> {data.position.elevation}°</p>
+              {user ? (
+                <button
+                  onClick={async () => {
+                    try {
+                      const updated = await api.toggleFavorite(data.id); // ✅ this works
+                      setFavorites(updated);
+                    } catch (err) {
+                      console.error('Favorite toggle failed', err);
+                    }
+                  }}
+                  className="btn small"
+                >
+                  {Array.isArray(favorites) && favorites.includes(data.id)
+                    ? '★ Unfollow'
+                    : '☆ Follow'}
+                </button>
+              ) : (
+                <p style={{ fontSize: '12px', color: '#999' }}>
+                  Login to follow satellites
+                </p>
+              )}
+
             </div>
 
             <div className="map-wrapper">
               <MapComponent
                 data={[{
-                  satname: modalData.name,
-                  satlatitude: modalData.position.satlatitude,
-                  satlongitude: modalData.position.satlongitude
+                  satname: data.name,
+                  satlatitude: data.position.satlatitude,
+                  satlongitude: data.position.satlongitude
                 }]}
                 user={userCoords}
-                orbit={modalData.orbit}
+                orbit={data.orbit}
               />
             </div>
           </div>

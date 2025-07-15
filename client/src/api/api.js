@@ -1,4 +1,5 @@
 import axios from 'axios';
+const token = localStorage.getItem('token');
 
 const api = {
   // 🌍 Get list of satellites for dropdown
@@ -24,7 +25,23 @@ const api = {
   getTLE: async (norad) => {
   const response = await axios.get(`/tle/${norad}`);
   return response.data;
-}
+},
+
+toggleFavorite: async (noradId) => {
+    const res = await axios.post(
+      `/auth/favorite/${noradId}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return res.data;
+  },
+
+  getFavorites: async () => {
+    const res = await axios.get('/auth/favorites', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.data.favorites;
+  }
 };
 
 export default api;
