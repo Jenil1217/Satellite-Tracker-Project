@@ -59,10 +59,26 @@ router.post('/favorite/:noradId', authenticate, async (req, res) => {
 
 
 // ✅ Get user’s favorites
+const Satellite = require('../models/Satellite');
+
 router.get('/favorites', authenticate, async (req, res) => {
-  const user = await User.findById(req.user.id);
-  if (!user) return res.status(404).json({ error: 'User not found' });
-  res.json({ favorites: user.favorites });
+  try {
+    const ids = req.user.favorites; // [23561, 21819, 19650]
+    
+    // Fetch matching satellites from MongoDB
+    const sats = await Satellite.find({ NORAD_CAT_ID: { $in: ids } });
+
+    // Map to clean shape for frontend
+    const response = ids.map(id => {
+      const sat = sats.find(s => s.NORAD_CAT_ID === id);
+      return sat ? { id, name: sat.OBJECT_NAME } : { id, name: 'Unknown' };
+    });
+
+    res.json(response);
+  } catch (err) {
+    console.error('Failed to fetch favorites:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 module.exports = router;

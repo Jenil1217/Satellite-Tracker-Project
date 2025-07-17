@@ -5,6 +5,7 @@ import "../App.css";
 import MapComponent from "../components/Map.jsx";
 import { calculateOrbit } from '../utils/orbit';
 import { AuthContext } from '../context/AuthContext';
+import SatCard from '../components/SatCard'
 
 
 const Home = () => {
@@ -139,48 +140,20 @@ const Home = () => {
       {error && <p className="error" style={{ color: 'red' }}>{error}</p>}
 
       {data && (
-        <>
-          <div className="card">
-            <h2>{data.info.satname}</h2>
-            <p><strong>Latitude:</strong> {data.positions[0].satlatitude}</p>
-            <p><strong>Longitude:</strong> {data.positions[0].satlongitude}</p>
-            <p><strong>Altitude:</strong> {data.positions[0].sataltitude} km</p>
-            {user ? (
-              <button
-                onClick={async () => {
-                  try {
-                    const updated = await api.toggleFavorite(data.info.satid); // ✅ this works
-                    setFavorites(updated);
-                  } catch (err) {
-                    console.error('Favorite toggle failed', err);
-                  }
-                }}
-                className="btn small"
-              >
-                {Array.isArray(favorites) && favorites.includes(data.info.satid)
-                  ? '★ Unfollow'
-                  : '☆ Follow'}
-              </button>
-            ) : (
-              <p style={{ fontSize: '12px', color: '#999' }}>
-                Login to follow satellites
-              </p>
-            )}
+      <SatCard
+        sat={{
+          name: data.info.satname,
+          id: data.info.satid || data.info.noradId,
+          position: data.positions[0],
+          orbit: data.orbit,
+        }}
+        favorites={favorites}
+        setFavorites={setFavorites}
+        userCoords={userCoords}
+        showMap={true}
+      />
+    )}
 
-
-          </div>
-          {data && <MapComponent
-            data={[{
-              satname: data.info.satname,
-              satlatitude: data.positions[0].satlatitude,
-              satlongitude: data.positions[0].satlongitude
-            }]}
-            user={userCoords}
-            orbit={data.orbit}
-          />
-          }
-        </>
-      )}
     </div>
   );
 };

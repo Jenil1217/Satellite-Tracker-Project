@@ -1,0 +1,117 @@
+/* ======================
+   SatCard Layout & Style
+   ====================== */
+
+.sat-card {
+  display: flex;
+  flex-direction: column;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 16px auto;
+  color: #c9d1d9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  max-width: 680px;
+  gap: 16px;
+  position: relative;
+}
+
+.sat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sat-info h2 {
+  margin: 0;
+  color: #58a6ff;
+  font-size: 1.4rem;
+}
+
+.sat-info p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.btn.small {
+  background-color: #238636;
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  font-size: 0.85rem;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.btn.small:hover {
+  background-color: #2ea043;
+}
+
+/* =======================
+   Orbit Map and Wrapper
+   ======================= */
+
+.map-wrapper {
+  margin-top: 12px;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 300px;
+  border: 1px solid #30363d;
+}
+
+.map-wrapper::before {
+  content: "🛰️ Orbit Path";
+  display: block;
+  font-size: 0.8rem;
+  color: #8b949e;
+  margin-bottom: 4px;
+  padding: 0 4px;
+}
+
+/* =======================
+   Modal Close Button (Optional)
+   ======================= */
+
+.sat-card .close-btn {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  color: #999;
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.sat-card .close-btn:hover {
+  color: #f85149;
+}
+
+/* =======================
+   Responsive Layout
+   ======================= */
+
+@media (min-width: 700px) {
+  .sat-card {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .sat-info {
+    flex: 1;
+    padding-right: 16px;
+  }
+
+  .map-wrapper {
+    flex: 1;
+    margin-top: 0;
+    max-width: 320px;
+    min-width: 240px;
+  }
+}

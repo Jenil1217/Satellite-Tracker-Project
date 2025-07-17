@@ -1,14 +1,10 @@
-import { useState, useEffect, useContext} from 'react';
-import api from '../api/api';// Add this line for CSS import
+import { useState, useEffect, useContext } from 'react';
+import api from '../api/api';
 import "../App.css";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import MapComponent from "../components/Map.jsx";
 import { calculateOrbit } from '../utils/orbit';
 import { AuthContext } from '../context/AuthContext';
-
-import L from "leaflet";
-import { data } from 'react-router-dom';
+import SatCard from '../components/SatCard'; // ✅ Import reusable card
 
 const categories = [
   { id: 0, name: 'All Categories' },
@@ -74,34 +70,31 @@ const Visible = () => {
   const [lat, setLat] = useState('');
   const [lon, setLon] = useState('');
   const [satellites, setSatellites] = useState([]);
-  const [data, setdata] = useState(null);
+  const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [cat, setSelectedCategory] = useState(1);
   const [userCoords, setUserCoords] = useState(null);
   const [favorites, setFavorites] = useState([]);
-  
   const { user } = useContext(AuthContext);
-  useEffect(() => {
-      const fetchFavs = async () => {
-        try {
-          const favs = await api.getFavorites();
-          setFavorites(favs);
-        } catch (err) {
-          console.log('No auth / favs yet');
-        }
-      };
 
-      fetchFavs();
-    }, []);
+  useEffect(() => {
+    const fetchFavs = async () => {
+      try {
+        const favs = await api.getFavorites();
+        setFavorites(favs);
+      } catch {
+        console.log('No auth / favs yet');
+      }
+    };
+    fetchFavs();
+  }, []);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         setUserCoords({ lat: coords.latitude, lon: coords.longitude });
       },
-      (err) => {
-        console.error("Failed to get user location", err);
-      }
+      (err) => console.error("Failed to get user location", err)
     );
   }, []);
 
@@ -122,8 +115,8 @@ const Visible = () => {
     }
 
     try {
-      const data = await api.getVisibleSatellites(lat, lon, cat);
-      setSatellites(data.above || []);
+      const result = await api.getVisibleSatellites(lat, lon, cat);
+      setSatellites(result.above || []);
       setError('');
     } catch (err) {
       console.error(err);
@@ -131,19 +124,16 @@ const Visible = () => {
     }
   };
 
-  
-
   const handlePopup = async (satId) => {
     try {
-      const data = await api.getSatellitePosition(satId, lat, lon);
+      const res = await api.getSatellitePosition(satId, lat, lon);
       const tleData = await api.getTLE(satId);
-      const orbitPath = calculateOrbit(tleData.tle); // pass full string now
+      const orbitPath = calculateOrbit(tleData.tle);
 
-
-      setdata({
-        name: data.info.satname,
-        id: data.info.satid,
-        position: data.positions[0],
+      setData({
+        name: res.info.satname,
+        id: res.info.satid,
+        position: res.positions[0],
         orbit: orbitPath
       });
     } catch (err) {
@@ -151,8 +141,7 @@ const Visible = () => {
     }
   };
 
-
-  const closeModal = () => setdata(null);
+  const closeModal = () => setData(null);
 
   return (
     <div className="visible-container">
@@ -161,35 +150,19 @@ const Visible = () => {
       <form onSubmit={handleSubmit} className="form">
         <div className="form-group">
           <label>Latitude:</label>
-          <input
-            type="text"
-            value={lat}
-            onChange={(e) => setLat(e.target.value)}
-            required
-          />
+          <input type="text" value={lat} onChange={(e) => setLat(e.target.value)} required />
         </div>
 
         <div className="form-group">
           <label>Longitude:</label>
-          <input
-            type="text"
-            value={lon}
-            onChange={(e) => setLon(e.target.value)}
-            required
-          />
+          <input type="text" value={lon} onChange={(e) => setLon(e.target.value)} required />
         </div>
 
         <div className="form-group">
           <label htmlFor="category">Category:</label>
-          <select
-            id="category"
-            value={cat}
-            onChange={(e) => setSelectedCategory(Number(e.target.value))}
-          >
+          <select id="category" value={cat} onChange={(e) => setSelectedCategory(Number(e.target.value))}>
             {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
           </select>
         </div>
@@ -227,49 +200,13 @@ const Visible = () => {
       {data && (
         <div className="modal" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="sat-info">
-              <h2>{data.name}</h2>
-              <p><strong>NORAD ID:</strong> {data.id}</p>
-              <p><strong>Latitude:</strong> {data.position.satlatitude}</p>
-              <p><strong>Longitude:</strong> {data.position.satlongitude}</p>
-              <p><strong>Altitude:</strong> {data.position.sataltitude} km</p>
-              <p><strong>Azimuth:</strong> {data.position.azimuth}°</p>
-              <p><strong>Elevation:</strong> {data.position.elevation}°</p>
-              {user ? (
-                <button
-                  onClick={async () => {
-                    try {
-                      const updated = await api.toggleFavorite(data.id); // ✅ this works
-                      setFavorites(updated);
-                    } catch (err) {
-                      console.error('Favorite toggle failed', err);
-                    }
-                  }}
-                  className="btn small"
-                >
-                  {Array.isArray(favorites) && favorites.includes(data.id)
-                    ? '★ Unfollow'
-                    : '☆ Follow'}
-                </button>
-              ) : (
-                <p style={{ fontSize: '12px', color: '#999' }}>
-                  Login to follow satellites
-                </p>
-              )}
-
-            </div>
-
-            <div className="map-wrapper">
-              <MapComponent
-                data={[{
-                  satname: data.name,
-                  satlatitude: data.position.satlatitude,
-                  satlongitude: data.position.satlongitude
-                }]}
-                user={userCoords}
-                orbit={data.orbit}
-              />
-            </div>
+            <SatCard
+              sat={data}
+              favorites={favorites}
+              setFavorites={setFavorites}
+              userCoords={userCoords}
+              showMap={true}
+            />
           </div>
         </div>
       )}

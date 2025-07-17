@@ -321,3 +321,12 @@ select {
   box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
 
+.main-content {
+  padding-top: 70px;
+  padding-left: 0;
+  transition: padding-left 0.3s ease;
+}
+
+.sidebar.open ~ .main-content {
+  padding-left: 220px;
+}

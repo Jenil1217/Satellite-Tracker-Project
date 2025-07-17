@@ -1,35 +1,33 @@
-import { Link, useNavigate } from 'react-router-dom';
+// components/Navbar.jsx
+import { Link, useLocation } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import './Navbar.css'; // Keep your existing styling
+import './Navbar.css';
 
-const Navbar = () => {
+const Navbar = ({ toggleSidebar }) => {
   const { user, logout } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
+  const isActive = (path) => location.pathname === path;
 
   return (
     <nav className="navbar">
-      <div className="nav-left">
-        <Link to="/">Home</Link>
-        <Link to="/visible">Visible Satellites</Link>
-        <Link to="/info">Info</Link>
+      <div className="navbar-left">
+        {/* ☰ Hamburger inside navbar left */}
+        <span className="hamburger" onClick={toggleSidebar}>☰</span>
+        <Link to="/" className="brand">🛰️ SatTracker</Link>
       </div>
 
-      <div className="nav-right">
+      <div className="navbar-right">
         {user ? (
           <>
-            <span>Welcome, {user.username}</span>
-            <button className="btn logout" onClick={handleLogout}>Logout</button>
+            <span className="welcome">Welcome, {user.username}</span>
+            <button onClick={logout} className="btn">Logout</button>
           </>
         ) : (
           <>
-            <Link to="/login" className="btn">Login</Link>
-            <Link to="/signup" className="btn">Sign Up</Link>
+            <Link to="/login" className={isActive('/login') ? 'active' : ''}>Login</Link>
+            <Link to="/signup" className={isActive('/signup') ? 'active' : ''}>Sign Up</Link>
           </>
         )}
       </div>

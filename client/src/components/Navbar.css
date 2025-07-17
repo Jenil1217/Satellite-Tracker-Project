@@ -1,39 +1,65 @@
 .navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: #0d1117;
+  color: white;
+  padding: 0 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #111;
-  color: white;
-  padding: 10px 20px;
+  z-index: 1001;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
 }
 
-.navbar a {
-  color: white;
-  margin-right: 15px;
-  text-decoration: none;
-}
-
-.nav-left a:hover,
-.nav-right a:hover {
-  text-decoration: underline;
-}
-
-.nav-right {
+/* Left side of navbar */
+.navbar-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
 }
 
-.btn {
-  background: transparent;
-  border: 1px solid white;
-  padding: 4px 10px;
-  border-radius: 4px;
-  color: white;
+/* ☰ Hamburger inside navbar */
+.hamburger {
+  font-size: 22px;
   cursor: pointer;
+  color: white;
 }
 
-.logout:hover {
-  background-color: #ff4444;
-  border-color: #ff4444;
+/* Brand link */
+.brand {
+  font-weight: 600;
+  color: #58a6ff;
+  text-decoration: none;
+  font-size: 18px;
+}
+
+/* Right side */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navbar-right a {
+  color: #ccc;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.navbar-right a.active {
+  color: #58a6ff;
+  border-bottom: 2px solid #58a6ff;
+  padding-bottom: 2px;
+}
+
+.navbar-right .btn {
+  background-color: #238636;
+  color: white;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }

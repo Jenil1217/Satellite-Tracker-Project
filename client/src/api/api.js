@@ -37,11 +37,12 @@ toggleFavorite: async (noradId) => {
   },
 
   getFavorites: async () => {
-    const res = await axios.get('/auth/favorites', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    return res.data.favorites;
-  }
+  const res = await axios.get('/auth/favorites', {
+    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+  });
+  return res.data.favorites;
+},
+
 };
 
 export default api;
