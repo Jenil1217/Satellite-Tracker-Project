@@ -1,37 +1,38 @@
-import { useState, useContext } from 'react';
-import axios from 'axios';
-import { AuthContext } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useState, useContext } from "react";
+import api from "../api/api";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('/auth/login', { email, password });
-      login(res.data.username, res.data.token);
-      navigate('/');
+      const res = await api.login(email, password);
+      login(res.token); // ✅ save in context + localStorage
+      navigate("/"); // or "/info"
     } catch (err) {
-      setError('Invalid credentials');
+      setError("Login failed. Check credentials.");
     }
   };
 
   return (
-    <div className="form-container">
+    <div className="container">
       <h2>Login</h2>
+      {error && <p className="error">{error}</p>}
       <form onSubmit={handleSubmit}>
-        <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button type="submit">Log In</button>
-        {error && <p className="error">{error}</p>}
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
+        <button type="submit" className="btn primary">Login</button>
       </form>
     </div>
   );
 };
 
 export default Login;
+ 

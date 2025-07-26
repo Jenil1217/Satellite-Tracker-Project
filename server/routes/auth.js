@@ -5,7 +5,7 @@ const User = require('../models/User');
 const authenticate = require('../middleware/auth');
 const router = express.Router();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // 🔐 Signup Route
 router.post('/signup', async (req, res) => {
@@ -44,7 +44,7 @@ router.post('/favorite/:noradId', authenticate, async (req, res) => {
     return res.status(400).json({ error: 'Invalid NORAD ID' });
   }
 
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user._id);
   if (!user) return res.status(404).json({ error: 'User not found' });
 
   if (user.favorites.includes(favId)) {
@@ -61,23 +61,29 @@ router.post('/favorite/:noradId', authenticate, async (req, res) => {
 // ✅ Get user’s favorites
 const Satellite = require('../models/Satellite');
 
-router.get('/favorites', authenticate, async (req, res) => {
+// Route: GET /user/favorites
+router.get("/favorites", authenticate, async (req, res) => {
   try {
-    const ids = req.user.favorites; // [23561, 21819, 19650]
-    
-    // Fetch matching satellites from MongoDB
-    const sats = await Satellite.find({ NORAD_CAT_ID: { $in: ids } });
+    if (!req.user || !req.user.favorites || !Array.isArray(req.user.favorites)) {
+      return res.status(200).json([]);
+    }
 
-    // Map to clean shape for frontend
-    const response = ids.map(id => {
-      const sat = sats.find(s => s.NORAD_CAT_ID === id);
-      return sat ? { id, name: sat.OBJECT_NAME } : { id, name: 'Unknown' };
+    const ids = req.user.favorites;
+
+    const satellites = await Satellite.find({ NORAD_CAT_ID: { $in: ids } });
+
+    const favorites = ids.map(id => {
+      const match = satellites.find(sat => sat.NORAD_CAT_ID === id);
+      return {
+        id,
+        name: match ? match.OBJECT_NAME : "Unknown"
+      };
     });
 
-    res.json(response);
+  res.json(favorites); // Return array directly
   } catch (err) {
-    console.error('Failed to fetch favorites:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error("Error in /favorites:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 

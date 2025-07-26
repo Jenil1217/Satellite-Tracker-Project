@@ -55,7 +55,7 @@ const Info = () => {
         ...res,
         orbit: orbitPath,
       });
-    } catch (err) {
+    } catch (err) { 
       console.error('Failed to fetch satellite data', err);
     }
   };

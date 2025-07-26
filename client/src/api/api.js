@@ -1,10 +1,11 @@
 import axios from 'axios';
-const token = localStorage.getItem('token');
+axios.defaults.baseURL = 'http://localhost:3000';
 
 const api = {
   // 🌍 Get list of satellites for dropdown
+  
   getAllSatellites: async () => {
-    const res = await axios.get('/satellites');  // ❗ No /api prefix
+    const res = await axios.get('/satellites');
     return res.data;
   },
 
@@ -14,7 +15,7 @@ const api = {
     return res.data;
   },
 
-  // 🔭 Optional: fetch visible satellites (not used in Home currently)
+  // 🔭 Fetch visible satellites
   getVisibleSatellites: async (lat, lon, cat = 0) => {
     const res = await axios.get('/visible-satellites', {
       params: { lat, lon, cat },
@@ -23,26 +24,39 @@ const api = {
   },
 
   getTLE: async (norad) => {
-  const response = await axios.get(`/tle/${norad}`);
-  return response.data;
-},
-
-toggleFavorite: async (noradId) => {
-    const res = await axios.post(
-      `/auth/favorite/${noradId}`,
-      {},
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    const res = await axios.get(`/tle/${norad}`);
     return res.data;
   },
 
+  // 🔑 Login
+  login: async (email, password) => {
+    const res = await axios.post("/auth/login", { email, password });
+    return res.data; // { token, username }
+  },
+
+  // ⭐ Get favorite satellites
   getFavorites: async () => {
-  const res = await axios.get('/auth/favorites', {
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+  const token = localStorage.getItem("token");
+  console.log("Token from localStorage:", token); // 🔍 Debug log
+  
+  if (!token) {
+    throw new Error("No token found");
+  }
+  
+  const res = await axios.get("/auth/favorites", {
+    headers: { Authorization: `Bearer ${token}` },
   });
-  return res.data.favorites;
+  return res.data;
 },
 
+  // 🔁 Toggle favorite
+  toggleFavorite: async (noradId) => {
+    const token = localStorage.getItem("token");
+    const res = await axios.post(`/auth/favorite/${noradId}`, {}, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  },
 };
 
 export default api;
