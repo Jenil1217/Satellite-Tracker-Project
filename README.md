@@ -1,88 +1,101 @@
-# 🛰️ Satellite Tracker Web App
+# Satellite Tracker Web App
 
-This is a full-stack web application that allows users to search, track, and view real-time position data of satellites using NORAD catalog numbers. It uses the N2YO API for satellite data and stores satellite info locally in MongoDB for faster future queries. The app includes a smart search box that loads satellites from the local MongoDB database and allows users to manually enter NORAD IDs to fetch and store new satellite data.
+|![Satellite Search](./client/src/assets/sat.png)| ![Visible Satellites](./client/src/assets/visible.png) |
+| --- | --- |
+| Satellite search and live position data view | Interactive map showing satellite trajectory |
+
+This is a full-stack web application that enables searching, tracking, and viewing real-time position data for satellites using NORAD catalogue numbers. The application integrates the N2YO API for live satellite data and stores satellite information locally in MongoDB for faster subsequent queries. A smart search box loads known satellites from the local database, and users can manually enter NORAD IDs to fetch and persist new satellite records.
+
+---
 
 ## Features
 
-- Search satellites by name or NORAD ID
-- Track satellite position using user's geolocation
-- Store satellite data in MongoDB for faster access
-- Automatically fetch missing satellites from N2YO using NORAD ID
-- Uses React for frontend, Express.js for backend, MongoDB for storage, and Axios for API requests
+- Search satellites by name or NORAD ID  
+- Real-time position tracking (uses the user's geolocation)  
+- Local caching of satellite metadata in MongoDB for faster access  
+- Automatic retrieval from N2YO when a satellite is not found locally  
+- Interactive map view showing current position and trajectory  
 
-## Tech Stack
+---
 
-Frontend: React (with Vite)
+## Technologies Used
 
-Backend: Express.js (Node.js)
+- **Frontend:** React (Vite)  
+- **Backend:** Node.js, Express.js  
+- **Database:** MongoDB (Mongoose)  
+- **APIs:** N2YO API  
+- **HTTP Client:** Axios  
+- **Dev / Build:** npm, Vite, nodemon (optional)
 
-Database: MongoDB
-
-APIs: N2YO API
+---
 
 ## Project Structure
 
-project-root/
-## Project Structure
+    project-root/
+    ├── client/                # React frontend (Vite)
+    │   └── src/
+    │       ├── components/    # Reusable components (SatCard, Search, Map, etc.)
+    │       ├── api/           # Frontend API helpers (api.js)
+    │       └── App.jsx
+    ├── server/                # Express backend
+    │   ├── models/            # Mongoose schemas
+    │   ├── routes/            # API routes (satellite, search, etc.)
+    │   └── server.js
+    ├── assets/                # Screenshots, images used in README
+    ├── .env                   # Environment variables (not committed)
+    └── README.md
 
-- `client/` – React frontend
-  - `src/`
-    - `components/` – React components
-    - `api/api.js` – Frontend API utility
-    - `App.jsx` – Main application component
-  - `public/` – Static assets
+---
 
-- `server/` – Express backend
-  - `models/` – Mongoose models
-  - `routes/` – Express route handlers
-  - `server.js` – Main server entry point
+## Setup (short)
 
-- `.env` – Environment variables (Mongo URI, N2YO API key)
-- `README.md` – Project documentation
+1. Clone the repository  
+    (run in terminal)
+    
+        git clone https://github.com/your-username/satellite-tracker.git
+        cd satellite-tracker
 
+2. Install dependencies
+    
+        cd client && npm install
+        cd ../server && npm install
 
-## Setup Instructions
+3. Create `server/.env` with your values
+    
+        MONGO_URI=mongodb://127.0.0.1:27017/satellites
+        N2YO_API_KEY=your_n2yo_api_key
 
-1. Clone the repository:
+4. Start servers
+    
+        cd server && npm run dev
+        cd ../client && npm run dev
 
-git clone https://github.com/your-username/satellite-tracker.git
-cd satellite-tracker
+Frontend: `http://localhost:5173`  
+Backend: `http://localhost:3000`
 
-2. Install dependencies:
-
-Frontend:
-cd client
-npm install
-
-Backend:
-cd ../server
-npm install
-
-3. Configure environment variables:
-
-Create a `.env` file inside the `server/` folder with:
-MONGO_URI=mongodb://127.0.0.1:27017/satellites
-N2YO_API_KEY=your_n2yo_api_key
-
-4. Start the servers:
-
-Start backend:
-cd server
-npm run dev
-
-Start frontend:
-cd ../client
-npm run dev
-
-The frontend will be available at http://localhost:5173 and backend at http://localhost:3000
+---
 
 ## Manual Satellite Entry
 
-If a satellite is not found in the dropdown, enter the NORAD catalog number manually. The system will fetch its data from N2YO and add it to MongoDB for future access.
+If a satellite is not present in the search dropdown, enter its NORAD catalogue number manually. The backend will fetch data from N2YO and save the satellite in MongoDB for future queries.
+
+---
+
+## How to add images (for this README)
+
+1. Create an `assets/` folder in the project root.  
+2. Save screenshots as:
+   - `assets/satellite-search.png`
+   - `assets/satellite-map.png`  
+3. Commit and push the images together with `README.md`. The table at the top will render them side by side on GitHub.
+
+---
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+---
 
 ## Author
 
